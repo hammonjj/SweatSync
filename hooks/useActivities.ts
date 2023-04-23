@@ -24,6 +24,7 @@ interface ExerciseSet {
   }
   
   export interface ActivityRecord {
+    id: number;
     type: string;
     title: string;
     data: Workout;
@@ -57,7 +58,7 @@ export default function useActivities(begin: Date, end: Date) {
     const fetchActivities = async (begin: Date, end: Date) => {
         const { data, error } = await supabase
             .from('SweatSync.Activities')
-            .select('date, title, type, data')
+            .select('id, date, title, type, data')
             .eq('user', user?.id)
             .gte('date', begin.toISOString())
             .lte('date', end.toISOString())
@@ -95,6 +96,7 @@ export default function useActivities(begin: Date, end: Date) {
               };
 
             const activityRecord: ActivityRecord = {
+                id: row.id,
                 type: row.type,
                 title: row.title,
                 data: workout,

@@ -5,6 +5,7 @@ import useUser from './useUser';
 export type MetricType = "weight" | "bodyfat";
 
 export interface Metric {
+    id: number,
     type: MetricType,
     value: number,
     unit: string,
@@ -38,7 +39,7 @@ export default function useMetrics(begin: Date, end: Date) {
     const fetchMetrics = async (begin: Date, end: Date) => {
         const { data, error } = await supabase
             .from('SweatSync.Metrics')
-            .select('date, type, value, unit')
+            .select('id, date, type, value, unit')
             .eq('user', user?.id)
             .gte('date', begin.toISOString())
             .lte('date', end.toISOString())
@@ -53,6 +54,7 @@ export default function useMetrics(begin: Date, end: Date) {
         
         const processedMetrics: Metric[] = data.map((row) => {
             const parsedMetric: Metric = {
+                id: row.id,
                 type: row.type,
                 value: row.value,
                 unit: getUnit(row.unit),

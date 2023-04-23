@@ -15,9 +15,7 @@ import SignInScreen from './screens/SignInScreen';
 import SignUpScreen from './screens/SignUpScreen';
 
 import AppleHealthKit, {
-  HealthValue,
-  HealthKitPermissions,
-  HealthInputOptions,
+  HealthKitPermissions
 } from 'react-native-health'
 
 const queryClient = new QueryClient();

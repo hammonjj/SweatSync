@@ -119,7 +119,9 @@ function createActivityCalendarStyles(activityRecords: ActivityRecord[], metrics
             customDatesStyles.push({
                 date: metric.date,
                 textStyle: {color: 'black'}, // sets the font color
-                containerStyle: [{backgroundColor: '#666666'}], // extra styling for day container
+                containerStyle: [{
+                        backgroundColor: '#666666',
+                    }], // extra styling for day container
                 allowDisabled: true, // allow custom style to apply to disabled dates
               }
             )
