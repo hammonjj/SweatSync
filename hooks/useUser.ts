@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '../library/initSupabase'
+import { supabase } from '../utils/initSupabase'
 import { User } from '@supabase/supabase-js';
 
 export default function useUser() {

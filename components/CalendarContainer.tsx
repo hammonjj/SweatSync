@@ -3,7 +3,7 @@ import { SegmentedButtons } from 'react-native-paper';
 import CalendarPicker from 'react-native-calendar-picker';
 import { View, StyleSheet, Alert } from "react-native";
 import { Moment } from "moment";
-import { getWorkoutDataAsync } from "../utils/AppleHealthKit";
+import { getWeightDataAsync, getWorkoutDataAsync } from "../utils/AppleHealthKit";
 import moment from "moment";
 
 
@@ -15,6 +15,7 @@ export default function CalendarContainer(props) {
         const startDate = new Date(momentDate.format('YYYY-MM-DD hh:mm'));
         const endDate = new Date((momentDate.add(momentDate.daysInMonth() - 1, 'days')).format('YYYY-MM-DD hh:mm'));
 
+        const weightDataResults = await getWeightDataAsync(startDate, endDate);
         //Get data for the current and previous months - should also call this on calendar load
         //  - Get Activity Data
         //  - Get Weight Data

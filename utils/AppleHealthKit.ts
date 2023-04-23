@@ -1,13 +1,13 @@
 import AppleHealthKit, { AnchoredQueryResults, HealthInputOptions, HealthObserver, HealthValue } from "react-native-health";
 import { IWorkout } from "./ActivityTypes";
 
-export async function getWeightDataAsync(startDate: Date): Promise<HealthValue[]> {
+export async function getWeightDataAsync(startDate: Date, endDate: Date): Promise<HealthValue[]> {
     let options: HealthInputOptions = {
         //unit: 'pound', // optional; default 'pound'
-        startDate: new Date(2023, 3, 1).toISOString(), // required
-        //endDate: new Date().toISOString(), // optional; default now
+        startDate: startDate.toISOString(), // required
+        endDate: endDate.toISOString(), // optional; default now
         ascending: false, // optional; default false
-        limit: 10, // optional; default no limit
+        //limit: 10, // optional; default no limit
       }
 
       return new Promise((resolve, reject) => {

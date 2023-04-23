@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet, Text } from "react-native";
+import { View, StyleSheet, Text, ScrollView } from "react-native";
 import { useTheme } from "react-native-paper";
 import CalendarContainer from "../components/CalendarContainer";
 import AppleHealthKit, {
@@ -34,14 +34,14 @@ export default function HomeScreen() {
     return (
         <View>
           <CalendarContainer onDateChange={onDateChange} anchorData={setAnchorData}/>
-          <View>
+          <ScrollView>
             <Text>Activity Container</Text>
             {weightValues.length === 0 ? (<Text>No Values</Text>) : weightValues.map((value) => (
               <Text key={value.id}>{value.value} - {value.startDate}</Text>
             ))}
             {!anchorData && <Text>No Anchor Data</Text>}
             {anchorData && <Text>Anchor Data: {JSON.stringify(anchorData)}</Text>}
-          </View>
+          </ScrollView>
         </View>
       );
 }
