@@ -1,38 +1,47 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../utils/initSupabase'
 import useUser from './useUser';
-import { HealthValue } from 'react-native-health';
 
 export type MetricType = "weight" | "bodyfat";
 
-interface IMetrics {
+export interface Metric {
     type: MetricType,
     value: number,
     unit: string,
     date: Date,
 }
 
-interface IMetricsTableData {
-    date: Date,
-    data: IMetrics[]
-}
-
-export default function useMetrics() {
+export default function useMetrics(begin: Date, end: Date) {
     const user = useUser();
-    const [metrics, setMetrics] = useState<IMetrics[]>([]);
+    const [metrics, setMetrics] = useState<Metric[]>([]);
 
-    const processMetrics = async (type: MetricType, metrics: HealthValue[]) => {
+    useEffect(() => {
+        if(!user) {
+            console.log("User is null - waiting to fetching metrics.")
+            return;
+        }
 
-    }
+        if(!begin) {
+            begin = new Date();
+            begin.setDate(0);
+        }
+
+        if(!end) {
+            end = new Date(begin.getFullYear(), begin.getMonth() + 1, 0);
+        }
+        
+        console.log("Fetching metrics from ", begin, " to ", end);
+        fetchMetrics(begin, end);
+    }, [begin, end, user]);
 
     //Convert this to useQuery later
-    const fetchMetrics = async (month: Date) => {
+    const fetchMetrics = async (begin: Date, end: Date) => {
         const { data, error } = await supabase
             .from('SweatSync.Metrics')
-            .select('date, data')
+            .select('date, type, value, unit')
             .eq('user', user?.id)
-            .gte('date', month.toISOString())
-            .lte('date', new Date(month.getFullYear(), month.getMonth() + 1, 0).toISOString())
+            .gte('date', begin.toISOString())
+            .lte('date', end.toISOString())
             .order('date', { ascending: true });
 
         if (error) {
@@ -40,19 +49,33 @@ export default function useMetrics() {
             return;
         }
         
-        const processedMetrics: IMetrics[] = data.map((metric: IMetricsTableData) => {
-            const parsedData = loadjsonb(metric.data);
-
-            return {
-                type: parsedData.type,
-                value: parsedData.value,
-                unit: parsedData.unit,
-                date: new Date(metric.date),
+        console.log("Metrics Data: ", data);
+        
+        const processedMetrics: Metric[] = data.map((row) => {
+            const parsedMetric: Metric = {
+                type: row.type,
+                value: row.value,
+                unit: getUnit(row.unit),
+                date: new Date(row.date)
             }
+
+            return parsedMetric;
         });
 
         setMetrics(processedMetrics);
     }
 
-    return { metrics, processMetrics, fetchMetrics }
+    return metrics;
+}
+
+function getUnit(unit) {
+    console.log("Unit: ", unit);
+    switch(unit) {
+        case "imperial":
+            return "lb";
+        case "metric":
+            return "kg";
+        default:
+            return "--";
+    }
 }
