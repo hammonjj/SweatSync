@@ -22,13 +22,13 @@ export default function useMetrics(begin: Date, end: Date) {
             return;
         }
 
-        if(!begin) {
+        if(!begin || begin === end) {
             begin = new Date();
             begin.setDate(0);
         }
 
         if(!end) {
-            end = new Date(begin.getFullYear(), begin.getMonth() + 1, 0);
+            end = new Date(begin.getFullYear(), begin.getMonth() + 2, 0);
         }
         
         console.log("Fetching metrics from ", begin, " to ", end);

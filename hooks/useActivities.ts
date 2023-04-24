@@ -47,7 +47,7 @@ export default function useActivities(begin: Date, end: Date) {
         }
 
         if(!end) {
-            end = new Date(begin.getFullYear(), begin.getMonth() + 1, 0);
+            end = new Date(begin.getFullYear(), begin.getMonth() + 2, 0);
         }
         
         console.log("Fetching activities from ", begin, " to ", end);

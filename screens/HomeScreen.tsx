@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { View, StyleSheet, ScrollView, ActionSheetIOS } from "react-native";
 import CalendarContainer from "../components/CalendarContainer";
 import useCalendar from "../hooks/useCalendar";
 import ActivityCard from "../components/ActivityCard";
@@ -7,10 +7,13 @@ import { IconButton, customText } from "react-native-paper";
 import { ActivityRecord } from "../hooks/useActivities";
 import MetricsCard from "../components/MetricsCard";
 import { Metric } from "../hooks/useMetrics";
+import { ActionSheetRef } from "react-native-actions-sheet";
+import CalendarAddActionSheet from "../components/CalendarAddActionSheet";
 
 const Text = customText<'customVariant'>();
 
 export default function HomeScreen({ navigation }) {
+    const actionSheetRef = useRef<ActionSheetRef>(null);
     const [selectedDate, setSelectedDate] = React.useState<Date>(null);
     const [todaysMetrics, setTodaysMetrics] = React.useState<Metric[]>(null);
     const [todaysActivities, setTodaysActivities] = React.useState<ActivityRecord[]>(null);
@@ -25,7 +28,9 @@ export default function HomeScreen({ navigation }) {
           <IconButton
             icon="plus"
             size={25}
-            onPress={() => console.log('Pressed')} /> //Add new activity
+            onPress={() => {
+              showAddActionSheet()
+            }} /> //Add new activity
         ),
       });
     }, [navigation]);
@@ -54,6 +59,7 @@ export default function HomeScreen({ navigation }) {
     //Need to make it so swiping on the bottom container changes the selected date
     return (
         <View>
+          <CalendarAddActionSheet reference={actionSheetRef}/>
           <CalendarContainer onDateChange={onDateChange} onDateRangeChange={onDateRangeChange}/>
           <ScrollView>
             {selectedDate && 
@@ -91,6 +97,28 @@ function getActivityDuration(activityBegin: Date, activityEnd: Date) {
     return hoursDiff.toString().padStart(2, '0') + ":" + 
       minutesDiff.toString().padStart(2, '0') + ":" + 
       secondsDiff.toString().padStart(2, '0');
+}
+
+function showAddActionSheet() {
+  ActionSheetIOS.showActionSheetWithOptions(
+    {
+      options: ['Cancel', 'Add Activity', 'Add Metrics', 'Record Workout'],
+      //destructiveButtonIndex: 0,
+      cancelButtonIndex: 0,
+      userInterfaceStyle: 'dark',
+    },
+    buttonIndex => {
+      if (buttonIndex === 0) {
+        console.log('Cancel')
+      } else if (buttonIndex === 1) {
+        console.log('Add Activity');
+      } else if (buttonIndex === 2) {
+        console.log('Add Metrics');
+      } else if (buttonIndex === 3) {
+      console.log('Record Workout');
+      }
+    },
+  );
 }
 
 const styles = StyleSheet.create({
