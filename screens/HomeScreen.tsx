@@ -9,6 +9,7 @@ import MetricsCard from "../components/MetricsCard";
 import { Metric } from "../hooks/useMetrics";
 import { ActionSheetRef } from "react-native-actions-sheet";
 import CalendarAddActionSheet from "../components/CalendarAddActionSheet";
+import AddWorkoutScreen from "./AddWorkoutScreen";
 
 const Text = customText<'customVariant'>();
 
@@ -22,6 +23,8 @@ export default function HomeScreen({ navigation }) {
 
     const currentDay = useCalendar(monthStartDate, monthEndDate);
     
+    const [dialog1Visible, setDialog1Visible] = React.useState(false);
+
     useEffect(() => {
       navigation.setOptions({
         headerRight: () => (
@@ -29,7 +32,7 @@ export default function HomeScreen({ navigation }) {
             icon="plus"
             size={25}
             onPress={() => {
-              showAddActionSheet()
+              showAddActionSheet();
             }} /> //Add new activity
         ),
       });
@@ -59,6 +62,10 @@ export default function HomeScreen({ navigation }) {
     //Need to make it so swiping on the bottom container changes the selected date
     return (
         <View>
+          <AddWorkoutScreen
+            visible={dialog1Visible}
+            //close={_toggleDialog('dialog1')}
+          />
           <CalendarAddActionSheet reference={actionSheetRef}/>
           <CalendarContainer onDateChange={onDateChange} onDateRangeChange={onDateRangeChange}/>
           <ScrollView>
@@ -85,6 +92,29 @@ export default function HomeScreen({ navigation }) {
           </ScrollView>
         </View>
       );
+
+      function showAddActionSheet() {
+        ActionSheetIOS.showActionSheetWithOptions(
+          {
+            options: ['Cancel', 'Add Activity', 'Add Metrics', 'Record Workout'],
+            //destructiveButtonIndex: 0,
+            cancelButtonIndex: 0,
+            userInterfaceStyle: 'dark',
+          },
+          buttonIndex => {
+            if (buttonIndex === 0) {
+              console.log('Cancel');
+            } else if (buttonIndex === 1) {
+              console.log('Add Activity');
+              setDialog1Visible(true);
+            } else if (buttonIndex === 2) {
+              console.log('Add Metrics');
+            } else if (buttonIndex === 3) {
+            console.log('Record Workout');
+            }
+          },
+        );
+      }
 }
 
 function getActivityDuration(activityBegin: Date, activityEnd: Date) {
@@ -97,28 +127,6 @@ function getActivityDuration(activityBegin: Date, activityEnd: Date) {
     return hoursDiff.toString().padStart(2, '0') + ":" + 
       minutesDiff.toString().padStart(2, '0') + ":" + 
       secondsDiff.toString().padStart(2, '0');
-}
-
-function showAddActionSheet() {
-  ActionSheetIOS.showActionSheetWithOptions(
-    {
-      options: ['Cancel', 'Add Activity', 'Add Metrics', 'Record Workout'],
-      //destructiveButtonIndex: 0,
-      cancelButtonIndex: 0,
-      userInterfaceStyle: 'dark',
-    },
-    buttonIndex => {
-      if (buttonIndex === 0) {
-        console.log('Cancel')
-      } else if (buttonIndex === 1) {
-        console.log('Add Activity');
-      } else if (buttonIndex === 2) {
-        console.log('Add Metrics');
-      } else if (buttonIndex === 3) {
-      console.log('Record Workout');
-      }
-    },
-  );
 }
 
 const styles = StyleSheet.create({
