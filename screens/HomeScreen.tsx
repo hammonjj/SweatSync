@@ -15,7 +15,7 @@ const Text = customText<'customVariant'>();
 
 export default function HomeScreen({ navigation }) {
     const actionSheetRef = useRef<ActionSheetRef>(null);
-    const [selectedDate, setSelectedDate] = React.useState<Date>(null);
+    const [selectedDate, setSelectedDate] = React.useState<Date>(new Date());
     const [todaysMetrics, setTodaysMetrics] = React.useState<Metric[]>(null);
     const [todaysActivities, setTodaysActivities] = React.useState<ActivityRecord[]>(null);
     const [monthStartDate, setMonthStartDate] = React.useState(null);
@@ -63,8 +63,9 @@ export default function HomeScreen({ navigation }) {
     return (
         <View>
           <AddWorkoutScreen
+            selectedDate={selectedDate}
             visible={dialog1Visible}
-            //close={_toggleDialog('dialog1')}
+            close={setDialog1Visible}
           />
           <CalendarAddActionSheet reference={actionSheetRef}/>
           <CalendarContainer onDateChange={onDateChange} onDateRangeChange={onDateRangeChange}/>
