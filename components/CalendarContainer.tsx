@@ -79,56 +79,40 @@ export default function CalendarContainer(props) {
 
 function createActivityCalendarStyles(activityRecords: ActivityRecord[], metrics: Metric[]) {
     let customDatesStyles = [];
-    for(let i = 0; i < activityRecords.length; i++) {
-        const activityRecord = activityRecords[i];
 
-        //console.log("createActivityCalendarStyles: " + JSON.stringify(activityRecord));
-        customDatesStyles.push({
-            date: activityRecord.date,
-            //style: {backgroundColor: '#000000'},
-            style:{
-                width: 0,
-                height: 0,
-                backgroundColor: "transparent",
-                borderStyle: "solid",
-                borderWidth: 1,
-                //borderLeftWidth: 5,
-                //borderRightWidth: 5,
-                //borderBottomWidth: 10,
-                //borderLeftColor: "transparent",
-                //borderRightColor: "transparent",
-              },
-            textStyle: {color: 'black'}, // sets the font color
-            containerStyle: [], // extra styling for day container
-            allowDisabled: true, // allow custom style to apply to disabled dates
-          }
-        )
-    };
+    if(!activityRecords || !metrics) {
+        return customDatesStyles;
+    }
+    
+    customDatesStyles = activityRecords.map(activityRecord => ({
+        date: activityRecord.date,
+        style:{
+            width: 0,
+            height: 0,
+            backgroundColor: "transparent",
+            borderStyle: "solid",
+            borderWidth: 1,
+            },
+        textStyle: {color: 'black'},
+        containerStyle: [],
+        allowDisabled: true,
+    }));
 
-    for(let i = 0; i < metrics.length; i++) {
-        const metric = metrics[i];
+    metrics.forEach((metric) => {
+        const { date } = metric;
+        const matchingDate = customDatesStyles.some(
+            (dateStyle) => dateStyle.date.getTime() === date.getTime());
 
-        const matchingDate = customDatesStyles.find((dateStyle) => {
-            return dateStyle.date.getTime() === metric.date.getTime();
-        });
-        
         if (matchingDate) {
             // The current date has a custom style, need to decide if going to overlay
         } else {
-            // The current day does not have a custom style - apply metric style
             customDatesStyles.push({
-                date: metric.date,
-                textStyle: {color: 'black'}, // sets the font color
-                containerStyle: [{
-                        backgroundColor: '#666666',
-                    }], // extra styling for day container
-                allowDisabled: true, // allow custom style to apply to disabled dates
-              }
-            )
-        }
-    }
-
-    
+                date,
+                textStyle: { color: 'black' },
+                containerStyle: [{ backgroundColor: '#666666' }],
+                allowDisabled: true,
+        });
+    }});
 
     return customDatesStyles;
 }

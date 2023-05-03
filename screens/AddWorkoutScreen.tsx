@@ -1,6 +1,11 @@
 import { useState } from "react";
-import { Text, StyleSheet } from "react-native";
+import { Text, StyleSheet, View } from "react-native";
+//import DropDownPicker from "react-native-dropdown-picker";
 import { Button, Dialog, Portal, TextInput } from "react-native-paper";
+import DropDown from "react-native-paper-dropdown";
+//import DateTimePicker from '@react-native-community/datetimepicker';
+//import { AutocompleteDropdown } from 'react-native-autocomplete-dropdown';
+import CreateStrengthTrainingExercises from "../components/CreateStrengthTrainingExercises";
 
 interface IProps {
     selectedDate: Date;
@@ -12,6 +17,16 @@ export default function AddWorkoutScreen(props: IProps) {
     const [workoutDate, setWorkoutDate] = useState(props.selectedDate);
     const [workoutDuration, setWorkoutDuration] = useState(0);
     const [workoutDescription, setWorkoutDescription] = useState("");
+
+    //Workout Type
+    const [workoutTypeOpen, setWorkoutTypeOpen] = useState(false);
+    const [workoutType, setWorkoutType] = useState(null);
+    const [workoutTypeItems, setWorkoutTypeItems] = useState([
+        {label: 'Strength', value: 'strength'},
+        {label: 'Run', value: 'run'}
+    ]);
+
+    const [showDatePicker, setShowDatePicker] = useState(false);
     //Top Left Icon -> Cancel
     //Top Right Icon -> Save
     //Top Center Text -> Add Workout
@@ -31,28 +46,45 @@ export default function AddWorkoutScreen(props: IProps) {
             <Dialog visible={props.visible} dismissable={false}>
                 <Dialog.Title>Add Workout</Dialog.Title>
                 <Dialog.Content>
-                    <TextInput
-                        label="Workout Title"
-                        style={styles.textInput}
-                        onChangeText={(text) => setWorkoutTitle(text)}
-                        value={workoutTitle}
-                        placeholder="Workout Title"
-                    />
-                    {/*TODO: Add Date Picker*/}
-                    {/*TODO: Workout Type*/}
-                    {/*multiline={true}*/}
-                    <TextInput
-                        mode="flat"
-                        
-                        label="Workout Description"
-                        style={styles.textInput}
-                        onChangeText={(text) => setWorkoutDescription(text)}
-                        value={workoutDescription}
-                        placeholder="Workout Description"
-                    />
-                    <Text>Add workout dialog: {props.selectedDate.toDateString()}</Text>
-                    </Dialog.Content>
+                <TextInput
+                    mode="outlined"
+                    label="Workout Title"
+                    style={styles.textInput}
+                    onChangeText={(text) => setWorkoutTitle(text)}
+                    value={workoutTitle}
+                    placeholder="Workout Title"
+                />
+                <DropDown
+                    label={"Workout Type"}
+                    mode={"outlined"}
+                    visible={workoutTypeOpen}
+                    showDropDown={() => setWorkoutTypeOpen(true)}
+                    onDismiss={() => setWorkoutTypeOpen(false)}
+                    value={workoutType}
+                    setValue={setWorkoutType}
+                    list={workoutTypeItems}
+                />
+
+                {/*TODO: Add Date Picker*/}
+                
+                {/*multiline={true}*/}
+                <TextInput
+                    mode="outlined"
+                    label="Workout Description"
+                    style={styles.textInput}
+                    onChangeText={(text) => setWorkoutDescription(text)}
+                    value={workoutDescription}
+                    placeholder="Workout Description"
+                />
+                {workoutType && workoutType === "strength" && 
+                    <>
+                        <CreateStrengthTrainingExercises />
+                    </>
+                }
+
+                </Dialog.Content>
                 <Dialog.Actions>
+                    <Button onPress={() => props.close(false)}>Cancel</Button>
                     <Button onPress={() => props.close(false)}>Save</Button>
                 </Dialog.Actions>
             </Dialog>

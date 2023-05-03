@@ -1,44 +1,65 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { supabase } from '../utils/initSupabase'
 import useUser from './useUser';
+import { QueryFunction, useQuery } from '@tanstack/react-query';
 
 interface ExerciseSet {
     id: number;
     reps: number;
-    value: number | string; // value can be a number or a string depending on the exercise type
-  }
+    value: number | string; // value can be a number or a string depending on the exercise type (time vs. weight)
+}
   
-  interface Exercise {
+interface Exercise {
     name: string;
     noteForNextTime: string;
     unit: string;
     type: string;
     sets: ExerciseSet[];
-  }
+}
   
-  interface Workout {
+interface Workout {
     workoutStarted: Date;
     workoutEnded: Date;
     postWorkoutNote: string;
     exercises: Exercise[];
-  }
+}
   
-  export interface ActivityRecord {
+export interface ActivityRecord {
     id: number;
     type: string;
     title: string;
     data: Workout;
     date: Date;
-  }
+}
 
 export default function useActivities(begin: Date, end: Date) {
     const user = useUser();
-    const [activities, setActivites] = useState<ActivityRecord[]>([]);
 
     useEffect(() => {
-        if(!user) {
+        refetch();
+    }, [user?.id, begin, end]);
+
+    const { isLoading, error, data: activities, refetch } = useQuery({
+        queryKey: ['activitiesList', { userId: user?.id, begin: begin, end: end }],
+        queryFn: fetchActivities,
+        refetchOnWindowFocus: true,
+    });
+
+    return activities;
+}
+
+const fetchActivities: QueryFunction<ActivityRecord[], ["activitiesList", {
+    userId: string;
+    begin: Date;
+    end: Date;
+    }]> = async ({queryKey}) => {
+        let userId = queryKey[1].userId;
+        let begin = queryKey[1].begin;
+        let end = queryKey[1].end;
+
+        if(!userId) {
             console.log("User is null - waiting to fetch activities.")
-            return;
+            return [] as ActivityRecord[];
         }
 
         if(!begin) {
@@ -49,24 +70,18 @@ export default function useActivities(begin: Date, end: Date) {
         if(!end) {
             end = new Date(begin.getFullYear(), begin.getMonth() + 2, 0);
         }
-        
-        console.log("Fetching activities from ", begin, " to ", end);
-        fetchActivities(begin, end);
-    }, [begin, end, user]);
 
-    //Convert this to useQuery later
-    const fetchActivities = async (begin: Date, end: Date) => {
         const { data, error } = await supabase
             .from('SweatSync.Activities')
             .select('id, date, title, type, data')
-            .eq('user', user?.id)
+            .eq('user', userId)
             .gte('date', begin.toISOString())
             .lte('date', end.toISOString())
             .order('date', { ascending: true });
 
         if (error) {
             console.log("Error fetching metrics: ", error);
-            return;
+            return [] as ActivityRecord[];
         }
         
         console.log("Activity Data: ", data);
@@ -107,20 +122,5 @@ export default function useActivities(begin: Date, end: Date) {
         });
 
         console.log("Activity Records: ", activityRecords);
-        setActivites(activityRecords);
+        return activityRecords;
     }
-
-    return activities;
-}
-
-function getUnit(unit) {
-    console.log("Unit: ", unit);
-    switch(unit) {
-        case "imperial":
-            return "lb";
-        case "metric":
-            return "kg";
-        default:
-            return "--";
-    }
-}

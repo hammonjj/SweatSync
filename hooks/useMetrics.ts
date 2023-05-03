@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../utils/initSupabase'
 import useUser from './useUser';
+import { QueryFunction, useQuery } from '@tanstack/react-query';
 
 export type MetricType = "weight" | "bodyfat";
 
@@ -14,15 +15,46 @@ export interface Metric {
 
 export default function useMetrics(begin: Date, end: Date) {
     const user = useUser();
-    const [metrics, setMetrics] = useState<Metric[]>([]);
 
     useEffect(() => {
-        if(!user) {
-            console.log("User is null - waiting to fetching metrics.")
-            return;
+        refetch();
+    }, [user?.id, begin, end]);
+
+    const { isLoading, error, data: metrics, refetch } = useQuery({
+        queryKey: ['metricsList', { userId: user?.id, begin: begin, end: end }],
+        queryFn: fetchMetrics,
+        refetchOnWindowFocus: true,
+    });
+    
+    return metrics;
+}
+
+function getUnit(unit) {
+    switch(unit) {
+        case "imperial":
+            return "lb";
+        case "metric":
+            return "kg";
+        default:
+            return "--";
+    }
+}
+
+const fetchMetrics: QueryFunction<Metric[], ["metricsList", {
+    userId: string;
+    begin: Date;
+    end: Date;
+    }]> = async ({queryKey}) => {
+        let userId = queryKey[1].userId;
+        let begin = queryKey[1].begin;
+        let end = queryKey[1].end;
+
+        if(!userId) {
+            console.log("User is null - waiting to fetch metrics.")
+            return [] as Metric[];
         }
 
-        if(!begin || begin === end) {
+        if(!begin) {
             begin = new Date();
             begin.setDate(0);
         }
@@ -30,24 +62,18 @@ export default function useMetrics(begin: Date, end: Date) {
         if(!end) {
             end = new Date(begin.getFullYear(), begin.getMonth() + 2, 0);
         }
-        
-        console.log("Fetching metrics from ", begin, " to ", end);
-        fetchMetrics(begin, end);
-    }, [begin, end, user]);
 
-    //Convert this to useQuery later
-    const fetchMetrics = async (begin: Date, end: Date) => {
         const { data, error } = await supabase
             .from('SweatSync.Metrics')
             .select('id, date, type, value, unit')
-            .eq('user', user?.id)
+            .eq('user', userId)
             .gte('date', begin.toISOString())
             .lte('date', end.toISOString())
             .order('date', { ascending: true });
 
         if (error) {
             console.log("Error fetching metrics: ", error);
-            return;
+            return [] as Metric[];
         }
         
         console.log("Metrics Data: ", data);
@@ -64,20 +90,5 @@ export default function useMetrics(begin: Date, end: Date) {
             return parsedMetric;
         });
 
-        setMetrics(processedMetrics);
+        return processedMetrics;
     }
-
-    return metrics;
-}
-
-function getUnit(unit) {
-    console.log("Unit: ", unit);
-    switch(unit) {
-        case "imperial":
-            return "lb";
-        case "metric":
-            return "kg";
-        default:
-            return "--";
-    }
-}
