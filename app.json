@@ -31,6 +31,12 @@
       "eas": {
         "projectId": "63797ce0-9a17-4edd-a5ea-135a451ab01f"
       }
+    },
+    "android": {
+      "package": "com.jhammond1987.SweatSync"
+    },
+    "ios": {
+      "bundleIdentifier": "com.jhammond1987.SweatSync"
     }
   }
 }
