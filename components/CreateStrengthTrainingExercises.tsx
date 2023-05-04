@@ -1,25 +1,28 @@
 import React, { useState,  } from "react";
-import { View, Text, ActionSheetIOS, StyleSheet } from "react-native";
-import { AutocompleteDropdown } from "react-native-autocomplete-dropdown";
+import { View, Text, StyleSheet } from "react-native";
 import useExercises from "../hooks/useExercises";
-//import {Picker} from '@react-native-picker/picker';
-//import DropDownPicker from 'react-native-dropdown-picker';
-import DropDown from 'react-native-paper-dropdown';
-import { IconButton, Surface, TextInput } from "react-native-paper";
+import { Button } from "react-native-paper";
+import SegmentedPicker from 'react-native-segmented-picker';
 
-export default function CreateStrengthTrainingExercises(props) {
-    //Get Saved Exercises
-    //EmptyResultComponent={<Text style={{ padding: 10, fontSize: 15 }}>Oops ¯\_(ツ)_/¯</Text>}
-    //Typeable combobox or searchable text input
-    //Plus Button to add exercise
-    let selectedExerciseList: string[] = [];
+interface IProps {
+    onExerciseConfirmed: (exerciseId: number, exerciseName: string, reps: number, sets: number, tracking: string) => void;
+}
+
+export default function CreateStrengthTrainingExercises(props: IProps) {
     const {ExerciseList, isLoading} = useExercises();
-    const [selectedExercise, setSelectedExercise] = useState(null);
-    const [sets, setSets] = useState(0);
-    const [reps, setReps] = useState(0);
-    //console.log(ExerciseList)
 
-    const [open, setOpen] = useState(false);
+    /* Segmented Picker */
+    const [showExercisePicker, setShowExercisePicker] = useState(false);
+    const segmentedPicker = React.useRef();
+
+    function onConfirm (selections) {
+        setShowExercisePicker(false);
+        const exerciseObj = ExerciseList.find((exercise) => (
+            exercise.id == selections.exercise));
+
+        props.onExerciseConfirmed(
+            parseInt(selections.exercise), exerciseObj.name, selections.reps, selections.sets, selections.recordingType);
+    }
 
     if(isLoading) {
         return (
@@ -30,68 +33,77 @@ export default function CreateStrengthTrainingExercises(props) {
     }
     
     //At some point I might need to convert to AutocompleteDropdown
-    const itemList = ExerciseList.map((exercise) => {
-        return { label: exercise.name, value: exercise.id }
+    let itemList = ExerciseList.map((exercise) => {
+        return { label: exercise.name, value: exercise.id.toString() }
     })
-/*
-<View>
-            <DropDown
-              label={'Exercise'}
-              mode={'outlined'}
-              visible={open}
-              showDropDown={() => setOpen(true)}
-              onDismiss={() => setOpen(false)}
-              value={selectedExercise}
-              setValue={setSelectedExercise}
-              list={itemList}
-            />
-        <IconButton
-            icon="delete"
-            mode="contained"
-            size={24}
-            onPress={() => {}}
-          />
-        </View>
-*/
+
+    itemList.unshift({ label: "Add New", value: "0" });
+
     return (
-        <View style={styles.horizontalSurfacesContainer}>
-            <View style={styles.horizontalSurfaceLeft}>
-                <DropDown
-                    label={'Exercise'}
-                    mode={'outlined'}
-                    visible={open}
-                    showDropDown={() => setOpen(true)}
-                    onDismiss={() => setOpen(false)}
-                    value={selectedExercise}
-                    setValue={setSelectedExercise}
-                    list={itemList}
-                />
-            </View>
-            <View style={styles.horizontalSurfaceSets}>
-                <TextInput
-                    style={{width: 65}}
-                    mode="outlined"
-                    label="Sets"
-                    onChangeText={(text) => setSets(parseInt(text))}
-                    value={sets.toString()}
-                    placeholder=""
-                    maxLength={1}
-                    keyboardType = 'number-pad'
-                />
-            </View>
-            <View style={styles.horizontalSurfaceReps}>
-                <TextInput
-                    style={{width: 69}}
-                    mode="outlined"
-                    label="Reps"
-                    onChangeText={(text) => setReps(parseInt(text))}
-                    value={reps.toString()}
-                    placeholder=""
-                    maxLength={2}
-                    keyboardType = 'number-pad'
-                />
-            </View>
-          </View>
+        <View>
+            <Button
+              mode="elevated"
+              //buttonColor={color}
+              onPress={() => {setShowExercisePicker(true)}}
+              style={styles.button}
+            >
+              Add Exercise
+            </Button>
+            <SegmentedPicker
+                ref={segmentedPicker}
+                onConfirm={onConfirm}
+                visible={showExercisePicker}
+                //separatorStyle={{ backgroundColor: 'black' }}
+                options={[
+                {
+                    key: 'exercise',
+                    items: itemList
+                },
+                {
+                    key: 'sets',
+                    items: [
+                        { label: '1 Set', value: '1' },
+                        { label: '2 Sets', value: '2' },
+                        { label: '3 Sets', value: '3' },
+                        { label: '4 Sets', value: '4' },
+                        { label: '5 Sets', value: '5' },
+                    ],
+                },
+                {
+                    key: 'reps',
+                    items: [
+                        { label: '1 Rep', value: '1' },
+                        { label: '2 Reps', value: '2' },
+                        { label: '3 Reps', value: '3' },
+                        { label: '4 Reps', value: '4' },
+                        { label: '5 Reps', value: '5' },
+                        { label: '6 Reps', value: '6' },
+                        { label: '7 Reps', value: '7' },
+                        { label: '8 Reps', value: '8' },
+                        { label: '9 Reps', value: '9' },
+                        { label: '10 Reps', value: '10' },
+                        { label: '11 Reps', value: '11' },
+                        { label: '12 Reps', value: '12' },
+                        { label: '13 Reps', value: '13' },
+                        { label: '14 Reps', value: '14' },
+                        { label: '15 Reps', value: '15' },
+                        { label: '16 Reps', value: '16' },
+                        { label: '17 Reps', value: '17' },
+                        { label: '18 Reps', value: '18' },
+                        { label: '19 Reps', value: '19' },
+                        { label: '20 Reps', value: '20' },
+                    ],
+                },
+                {
+                    key: 'recordingType',
+                    items: [
+                        { label: 'Weight', value: 'weight' },
+                        { label: 'Time', value: 'time' },
+                    ],
+                },
+                ]}
+            />
+        </View>
     );
 }
     
@@ -108,9 +120,12 @@ const styles = StyleSheet.create({
         width: '50%',
       },
     horizontalSurfaceSets: {
-      width: '20%',
+        width: '20%',
     },
     horizontalSurfaceReps: {
         width: '20%',
-      },
+    },
+    button: {
+        margin: 4,
+    },
   });

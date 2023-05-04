@@ -7,9 +7,10 @@ export type ExerciseType = "strength";
 interface Exercise {
     id: string;
     type: ExerciseType;
-    title: string;
+    title: string; //I don't think this is needed
     name: string;
 }
+
 export default function useExercises() {
     const user = useUser();
 

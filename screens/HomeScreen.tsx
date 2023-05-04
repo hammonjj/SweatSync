@@ -9,7 +9,6 @@ import MetricsCard from "../components/MetricsCard";
 import { Metric } from "../hooks/useMetrics";
 import { ActionSheetRef } from "react-native-actions-sheet";
 import CalendarAddActionSheet from "../components/CalendarAddActionSheet";
-import AddWorkoutScreen from "./AddWorkoutScreen";
 
 const Text = customText<'customVariant'>();
 
@@ -33,7 +32,7 @@ export default function HomeScreen({ navigation }) {
             size={25}
             onPress={() => {
               //showAddActionSheet();
-              navigation.navigate("AddWorkout", {selectedDate: selectedDate});
+              navigation.navigate("AddWorkout", {/*selectedDate: selectedDate*/});
             }} /> //Add new activity
         ),
       });
@@ -63,11 +62,6 @@ export default function HomeScreen({ navigation }) {
     //Need to make it so swiping on the bottom container changes the selected date
     return (
         <View>
-          <AddWorkoutScreen
-            selectedDate={selectedDate}
-            visible={dialog1Visible}
-            close={setDialog1Visible}
-          />
           <CalendarAddActionSheet reference={actionSheetRef}/>
           <CalendarContainer onDateChange={onDateChange} onDateRangeChange={onDateRangeChange}/>
           <ScrollView>

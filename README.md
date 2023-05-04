@@ -1,6 +1,11 @@
 # SweatSync
 
 ## Build Commands
+npx react-native start -> for rebuilding Metro bundle
+
+For installing native packages:
+cd ios
+pod install
 
 # To Test Flight
 Increase build number in app.json

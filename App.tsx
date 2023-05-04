@@ -19,7 +19,6 @@ import AppleHealthKit, {
   HealthKitPermissions
 } from 'react-native-health'
 import AddWorkoutScreen from './screens/AddWorkoutScreen';
-import AddWorkoutScreen_V2 from './screens/AddWorkoutScreen_v2';
 
 const queryClient = new QueryClient();
 const Tab = createBottomTabNavigator();
@@ -92,9 +91,9 @@ export default function App() {
       <QueryClientProvider client={queryClient}>
         <PaperProvider theme={combinedTheme}>
           <NavigationContainer theme={combinedTheme}>
-              <Stack.Navigator>
+              <Stack.Navigator screenOptions={{headerShown: true}}>
                 <Stack.Screen name="Home" component={BottomBarNavigation} />
-                <Stack.Screen name="AddWorkout" component={AddWorkoutScreen_V2} />
+                <Stack.Screen name="AddWorkout" component={AddWorkoutScreen} />
               </Stack.Navigator>
             </NavigationContainer>
         </PaperProvider>
@@ -102,76 +101,61 @@ export default function App() {
     </View>
   );
 
-/*
-  return (
-    <View style={styles.container}>
-      <QueryClientProvider client={queryClient}>
-        <PaperProvider theme={combinedTheme}>
-          <NavigationContainer theme={combinedTheme}>
-            <Tab.Navigator
-              screenOptions={({ route }: { route: any }) => ({
-                headerStyle: {
-                  backgroundColor: 'rgb(77, 67, 87)',
-                },
-              })}>
-              {session && session.user ? (
-                <>
-                  <Tab.Screen 
-                    name="Home" 
-                    component={HomeScreen} 
-                    options={{
-                      tabBarIcon: ({ color, size }) => {
-                        return <Icon name="home" size={size} color={color} />;
-                      },
-                    }}/>
-                  <Tab.Screen 
-                    name="Settings" 
-                    component={SettingsScreen}
-                    options={{
-                      tabBarIcon: ({ color, size }) => {
-                        return <Icon name="cog" size={size} color={color} />;
-                      },
-                    }} />
-                </>
-              ) : (
-                <>
-                  <Tab.Screen 
-                    name="SignIn" 
-                    component={SignInScreen} 
-                    options={{
-                      tabBarIcon: ({ color, size }) => {
-                        return <Icon name="account" size={size} color={color} />;
-                      },
-                    }}
-                    />
-                  <Tab.Screen 
-                    name="SignUp" 
-                    component={SignUpScreen} 
-                    options={{
-                      tabBarIcon: ({ color, size }) => {
-                        return <Icon name="account-plus" size={size} color={color} />;
-                      },
-                    }}
-                    />
-                </>
-              )}
-            </Tab.Navigator>
-          </NavigationContainer>
-        </PaperProvider>
-      </QueryClientProvider>
-    </View>
-  );
-  */
+  function BottomBarNavigation() {
+    return (
+      <Tab.Navigator
+                screenOptions={({ route }: { route: any }) => ({
+                  headerStyle: {
+                    backgroundColor: 'rgb(77, 67, 87)',
+                  },
+                })}>
+                {session && session.user ? (
+                  <>
+                    <Tab.Screen 
+                      name="Dashboard" 
+                      component={HomeScreen} 
+                      options={{
+                        //headerShown: false, //hide header -> Will need new add workout button before implementing
+                        tabBarIcon: ({ color, size }) => {
+                          return <Icon name="home" size={size} color={color} />;
+                        },
+                      }}/>
+                    <Tab.Screen 
+                      name="Settings" 
+                      component={SettingsScreen}
+                      options={{
+                        tabBarIcon: ({ color, size }) => {
+                          return <Icon name="cog" size={size} color={color} />;
+                        },
+                      }} />
+                  </>
+                ) : (
+                  <>
+                    <Tab.Screen 
+                      name="SignIn" 
+                      component={SignInScreen} 
+                      options={{
+                        tabBarIcon: ({ color, size }) => {
+                          return <Icon name="account" size={size} color={color} />;
+                        },
+                      }}
+                      />
+                    <Tab.Screen 
+                      name="SignUp" 
+                      component={SignUpScreen} 
+                      options={{
+                        tabBarIcon: ({ color, size }) => {
+                          return <Icon name="account-plus" size={size} color={color} />;
+                        },
+                      }}
+                      />
+                  </>
+                )}
+              </Tab.Navigator>
+    );
+  }
 }
 
-function BottomBarNavigation() {
-  return (
-    <Tab.Navigator>
-      <Tab.Screen name="Calendar" component={HomeScreen} />
-      <Tab.Screen name="Settings" component={SettingsScreen} />
-    </Tab.Navigator>
-  );
-}
 const styles = StyleSheet.create({
   container: {
     flex: 1,
