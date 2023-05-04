@@ -20,9 +20,6 @@ export default function StrengthExerciseList(props: IProps) {
 
     function onDeleteRow(deletedItem: SelectedStengthExercise) {
         props.removeExercise(deletedItem.exerciseId);
-        //const filteredData = props.exercises.filter(item => item.exerciseId !== deletedItem.exerciseId);
-        //setExercises(filteredData);
-        console.log("Delete Exercise Pressed  Callback: " + deletedItem.exerciseId)
     }
 
     const SwipeableRow = ({ item, index }) => {
