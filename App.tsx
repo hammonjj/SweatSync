@@ -2,6 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import { NavigationContainer, DarkTheme as NavigationDarkTheme, DefaultTheme as NavigationDefaultTheme } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
 import { MD3DarkTheme, MD3LightTheme, Provider as PaperProvider, adaptNavigationTheme, configureFonts } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -17,9 +18,12 @@ import SignUpScreen from './screens/SignUpScreen';
 import AppleHealthKit, {
   HealthKitPermissions
 } from 'react-native-health'
+import AddWorkoutScreen from './screens/AddWorkoutScreen';
+import AddWorkoutScreen_V2 from './screens/AddWorkoutScreen_v2';
 
 const queryClient = new QueryClient();
 const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
 
 //Healthkit initialization
 /* Permission options */
@@ -82,14 +86,28 @@ export default function App() {
       setSession(session)
     })
   }, []);
-
+  
   return (
     <View style={styles.container}>
       <QueryClientProvider client={queryClient}>
         <PaperProvider theme={combinedTheme}>
-          <NavigationContainer
-            theme={combinedTheme}
-            >
+          <NavigationContainer theme={combinedTheme}>
+              <Stack.Navigator>
+                <Stack.Screen name="Home" component={BottomBarNavigation} />
+                <Stack.Screen name="AddWorkout" component={AddWorkoutScreen_V2} />
+              </Stack.Navigator>
+            </NavigationContainer>
+        </PaperProvider>
+      </QueryClientProvider>
+    </View>
+  );
+
+/*
+  return (
+    <View style={styles.container}>
+      <QueryClientProvider client={queryClient}>
+        <PaperProvider theme={combinedTheme}>
+          <NavigationContainer theme={combinedTheme}>
             <Tab.Navigator
               screenOptions={({ route }: { route: any }) => ({
                 headerStyle: {
@@ -143,8 +161,17 @@ export default function App() {
       </QueryClientProvider>
     </View>
   );
+  */
 }
 
+function BottomBarNavigation() {
+  return (
+    <Tab.Navigator>
+      <Tab.Screen name="Calendar" component={HomeScreen} />
+      <Tab.Screen name="Settings" component={SettingsScreen} />
+    </Tab.Navigator>
+  );
+}
 const styles = StyleSheet.create({
   container: {
     flex: 1,

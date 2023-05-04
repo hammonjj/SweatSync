@@ -32,7 +32,8 @@ export default function HomeScreen({ navigation }) {
             icon="plus"
             size={25}
             onPress={() => {
-              showAddActionSheet();
+              //showAddActionSheet();
+              navigation.navigate("AddWorkout", {selectedDate: selectedDate});
             }} /> //Add new activity
         ),
       });

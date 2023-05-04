@@ -15,9 +15,30 @@ export default function useExercises() {
 
     const { isLoading, error, data: ExerciseList } = useQuery({
         queryKey: ['exerciseList', { userId: user?.id }],
-        queryFn: fetchExerciseList})
+        queryFn: fetchExerciseList}
+    );
 
-    return {ExerciseList, error, isLoading};
+    const addExercise = async (name: string, type: string) => {
+        if(!user) {
+            console.log("No user logged in - cannot add exercise");
+            return;
+        }
+
+        const { data, error } = await supabase
+            .from('SweatSync.Exercises')
+            .insert([
+                { name: name, type: type, created_by: user.id }
+            ]);
+
+        if(error) {
+            console.log("Error adding exercise: ", error);
+            return;
+        }
+
+        console.log("Added exercise: ", data);
+    }
+
+    return {ExerciseList, error, isLoading, addExercise};
 }
 
 const fetchExerciseList: QueryFunction<Exercise[], ["exerciseList", {
