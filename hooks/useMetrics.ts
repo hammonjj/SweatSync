@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { supabase } from '../utils/initSupabase'
-import useUser from './useUser';
 import { QueryFunction, useQuery } from '@tanstack/react-query';
+import { useAuth } from './useAuth';
 
 export type MetricType = "weight" | "bodyfat";
 
@@ -14,7 +14,7 @@ export interface Metric {
 }
 
 export default function useMetrics(begin: Date, end: Date) {
-    const user = useUser();
+    const { user } = useAuth();
 
     useEffect(() => {
         refetch();
@@ -50,7 +50,6 @@ const fetchMetrics: QueryFunction<Metric[], ["metricsList", {
         let end = queryKey[1].end;
 
         if(!userId) {
-            console.log("User is null - waiting to fetch metrics.")
             return [] as Metric[];
         }
 
@@ -76,7 +75,7 @@ const fetchMetrics: QueryFunction<Metric[], ["metricsList", {
             return [] as Metric[];
         }
         
-        console.log("Metrics Data: ", data);
+        //console.log("Metrics Data: ", data);
         
         const processedMetrics: Metric[] = data.map((row) => {
             const parsedMetric: Metric = {

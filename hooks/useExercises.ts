@@ -1,6 +1,6 @@
-import useUser from "./useUser";
 import { QueryFunction, useQuery } from "@tanstack/react-query";
 import { supabase } from "../utils/initSupabase";
+import { useAuth } from "./useAuth";
 
 export type ExerciseType = "strength";
 
@@ -12,24 +12,21 @@ interface Exercise {
 }
 
 export default function useExercises() {
-    const user = useUser();
+    const { user } = useAuth();
 
     const { isLoading, error, data: ExerciseList } = useQuery({
         queryKey: ['exerciseList', { userId: user?.id }],
-        queryFn: fetchExerciseList}
-    );
+        queryFn: fetchExerciseList
+    });
 
     const addExercise = async (name: string, type: string) => {
         if(!user) {
-            console.log("No user logged in - cannot add exercise");
             return;
         }
 
         const { data, error } = await supabase
             .from('SweatSync.Exercises')
-            .insert([
-                { name: name, type: type, created_by: user.id }
-            ]);
+            .insert([{ name: name, type: type, created_by: user.id }]);
 
         if(error) {
             console.log("Error adding exercise: ", error);

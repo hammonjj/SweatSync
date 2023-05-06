@@ -10,9 +10,9 @@ interface IProps {
 }
 
 export default function StrengthExerciseList(props: IProps) {
-    const [exercises, setExercises] = React.useState<SelectedStengthExercise[]>(props.exercises);
-    console.log("StrengthExerciseList props.exercises: " + JSON.stringify(props.exercises));
-    console.log("StrengthExerciseList exercises: " + JSON.stringify(exercises));
+    const [exercises, setExercises] = React.useState<SelectedStengthExercise[]>([]);
+    //console.log("StrengthExerciseList props.exercises: " + JSON.stringify(props.exercises));
+    //console.log("StrengthExerciseList exercises: " + JSON.stringify(exercises));
     
     useEffect(() => {
         setExercises(props.exercises);
@@ -65,7 +65,7 @@ export default function StrengthExerciseList(props: IProps) {
         //console.log("Row item: " + JSON.stringify(item));
     
         return (
-            <TouchableOpacity onPress={() => console.log("Item pressed")} style={styles.rectButton}>
+            <TouchableOpacity style={styles.rectButton}>
                 <Text>{item.exerciseName} - Reps: {item.reps} - Sets: {item.sets} - Tracking: {item.tracking}</Text>
             </TouchableOpacity>
         );
@@ -82,49 +82,47 @@ export default function StrengthExerciseList(props: IProps) {
     );
 }
 
+const styles = StyleSheet.create({
+rectButton: {
+    flex: 1,
+    //height: 80,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    justifyContent: 'space-between',
+    flexDirection: 'column',
+    backgroundColor: 'purple',
+},
+separator: {
+    backgroundColor: 'rgb(200, 199, 204)',
+    height: StyleSheet.hairlineWidth,
+},
+fromText: {
+    fontWeight: 'bold',
+    backgroundColor: 'transparent',
+},
+messageText: {
+    color: '#999',
+    backgroundColor: 'transparent',
+},
+dateText: {
+    backgroundColor: 'transparent',
+    position: 'absolute',
+    right: 20,
+    top: 10,
+    color: '#999',
+    fontWeight: 'bold',
+},
 
-
-  const styles = StyleSheet.create({
-    rectButton: {
-      flex: 1,
-      height: 80,
-      paddingVertical: 10,
-      paddingHorizontal: 20,
-      justifyContent: 'space-between',
-      flexDirection: 'column',
-      backgroundColor: 'white',
+//Swipeable Row
+leftAction: {
+    flex: 1,
+    backgroundColor: '#497AFC',
+    justifyContent: 'center',
     },
-    separator: {
-      backgroundColor: 'rgb(200, 199, 204)',
-      height: StyleSheet.hairlineWidth,
+    actionText: {
+    color: 'white',
+    fontSize: 16,
+    backgroundColor: 'transparent',
+    padding: 10,
     },
-    fromText: {
-      fontWeight: 'bold',
-      backgroundColor: 'transparent',
-    },
-    messageText: {
-      color: '#999',
-      backgroundColor: 'transparent',
-    },
-    dateText: {
-      backgroundColor: 'transparent',
-      position: 'absolute',
-      right: 20,
-      top: 10,
-      color: '#999',
-      fontWeight: 'bold',
-    },
-
-    //Swipeable Row
-    leftAction: {
-        flex: 1,
-        backgroundColor: '#497AFC',
-        justifyContent: 'center',
-      },
-      actionText: {
-        color: 'white',
-        fontSize: 16,
-        backgroundColor: 'transparent',
-        padding: 10,
-      },
-  });
+});

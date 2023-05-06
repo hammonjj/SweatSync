@@ -6,9 +6,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { MD3DarkTheme, MD3LightTheme, Provider as PaperProvider, adaptNavigationTheme, configureFonts } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import React, { useEffect, useState } from 'react';
-import { Session } from '@supabase/supabase-js'
-import { supabase } from './utils/initSupabase'
+import React from 'react';
 
 import HomeScreen from './screens/HomeScreen';
 import SettingsScreen from './screens/SettingsScreen';
@@ -19,6 +17,8 @@ import AppleHealthKit, {
   HealthKitPermissions
 } from 'react-native-health'
 import AddWorkoutScreen from './screens/AddWorkoutScreen';
+import { AuthProvider, useAuth } from './hooks/useAuth';
+import ActivitySummaryScreen from './screens/ActivitySummaryScreen';
 
 const queryClient = new QueryClient();
 const Tab = createBottomTabNavigator();
@@ -74,86 +74,78 @@ export default function App() {
 
   const combinedTheme = true ? CombinedDarkTheme : CombinedDefaultTheme;
 
-  const [session, setSession] = useState<Session | null>(null)
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-    })
-
-    supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-    })
-  }, []);
-  
   return (
     <View style={styles.container}>
-      <QueryClientProvider client={queryClient}>
-        <PaperProvider theme={combinedTheme}>
-          <NavigationContainer theme={combinedTheme}>
-              <Stack.Navigator screenOptions={{headerShown: true}}>
-                <Stack.Screen name="Home" component={BottomBarNavigation} />
-                <Stack.Screen name="AddWorkout" component={AddWorkoutScreen} />
-              </Stack.Navigator>
-            </NavigationContainer>
-        </PaperProvider>
-      </QueryClientProvider>
+      <AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <PaperProvider theme={combinedTheme}>
+            <NavigationContainer theme={combinedTheme}>
+                <Stack.Navigator screenOptions={{headerShown: false}}>
+                  <Stack.Screen name="Home" component={BottomBarNavigation} />
+                  <Stack.Screen name="AddWorkout" component={AddWorkoutScreen} options={{headerShown: true}}/>
+                  <Stack.Screen name="ActivitySummary" component={ActivitySummaryScreen} options={{headerShown: true}}/>
+                </Stack.Navigator>
+              </NavigationContainer>
+          </PaperProvider>
+        </QueryClientProvider>
+      </AuthProvider>
     </View>
   );
+}
 
-  function BottomBarNavigation() {
-    return (
-      <Tab.Navigator
-                screenOptions={({ route }: { route: any }) => ({
-                  headerStyle: {
-                    backgroundColor: 'rgb(77, 67, 87)',
-                  },
-                })}>
-                {session && session.user ? (
-                  <>
-                    <Tab.Screen 
-                      name="Dashboard" 
-                      component={HomeScreen} 
-                      options={{
-                        //headerShown: false, //hide header -> Will need new add workout button before implementing
-                        tabBarIcon: ({ color, size }) => {
-                          return <Icon name="home" size={size} color={color} />;
-                        },
-                      }}/>
-                    <Tab.Screen 
-                      name="Settings" 
-                      component={SettingsScreen}
-                      options={{
-                        tabBarIcon: ({ color, size }) => {
-                          return <Icon name="cog" size={size} color={color} />;
-                        },
-                      }} />
-                  </>
-                ) : (
-                  <>
-                    <Tab.Screen 
-                      name="SignIn" 
-                      component={SignInScreen} 
-                      options={{
-                        tabBarIcon: ({ color, size }) => {
-                          return <Icon name="account" size={size} color={color} />;
-                        },
-                      }}
-                      />
-                    <Tab.Screen 
-                      name="SignUp" 
-                      component={SignUpScreen} 
-                      options={{
-                        tabBarIcon: ({ color, size }) => {
-                          return <Icon name="account-plus" size={size} color={color} />;
-                        },
-                      }}
-                      />
-                  </>
-                )}
-              </Tab.Navigator>
-    );
-  }
+function BottomBarNavigation() {
+  const { session, user } = useAuth();
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }: { route: any }) => ({
+        headerStyle: {
+          backgroundColor: 'rgb(77, 67, 87)',
+        },
+      })}>
+      {session && user ? (
+        <>
+          <Tab.Screen 
+            name="Dashboard" 
+            component={HomeScreen} 
+            options={{
+              headerShown: true, //hide header -> Will need new add workout button before implementing
+              tabBarIcon: ({ color, size }) => {
+                return <Icon name="home" size={size} color={color} />;
+              },
+            }}/>
+          <Tab.Screen 
+            name="Settings" 
+            component={SettingsScreen}
+            options={{
+              tabBarIcon: ({ color, size }) => {
+                return <Icon name="cog" size={size} color={color} />;
+              },
+            }} />
+        </>
+      ) : (
+        <>
+          <Tab.Screen 
+            name="SignIn" 
+            component={SignInScreen} 
+            options={{
+              tabBarIcon: ({ color, size }) => {
+                return <Icon name="account" size={size} color={color} />;
+              },
+            }}
+            />
+          <Tab.Screen 
+            name="SignUp" 
+            component={SignUpScreen} 
+            options={{
+              tabBarIcon: ({ color, size }) => {
+                return <Icon name="account-plus" size={size} color={color} />;
+              },
+            }}
+            />
+        </>
+      )}
+    </Tab.Navigator>
+  );
 }
 
 const styles = StyleSheet.create({

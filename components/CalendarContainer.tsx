@@ -13,13 +13,13 @@ export default function CalendarContainer(props) {
     const [selectedButton, setSelectedButton] = React.useState('month');
 
     const metrics = useMetrics(monthStartDate, monthEndDate);
-    const activities = useActivities(monthStartDate, monthEndDate);
+    const {activities} = useActivities(monthStartDate, monthEndDate);
     
     //console.log("CalendarContainer::Metrics: " + JSON.stringify(metrics));
     //console.log("CalendarContainer::Activities: " + JSON.stringify(activities));
 
     async function onMonthChange(momentDate: Moment) {
-        console.log("onMonthChange: " + momentDate.toString());
+        //console.log("onMonthChange: " + momentDate.toString());
         const startDate = new Date(momentDate.format('YYYY-MM-DD hh:mm'));
         const endDate = new Date((momentDate.add(momentDate.daysInMonth() - 1, 'days')).format('YYYY-MM-DD hh:mm'));
 

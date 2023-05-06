@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { supabase } from '../utils/initSupabase'
-import useUser from './useUser';
-import { QueryFunction, useQuery } from '@tanstack/react-query';
+import { QueryFunction, useQuery, useQueryClient } from '@tanstack/react-query';
+import { getFirstDayOfMonth, getLastDayOfMonth } from '../utils/DateUtils';
+import { useAuth } from './useAuth';
 
 interface ExerciseSet {
     id: number;
@@ -17,23 +18,46 @@ interface Exercise {
     sets: ExerciseSet[];
 }
   
-interface Workout {
-    workoutStarted: Date;
-    workoutEnded: Date;
-    postWorkoutNote: string;
-    exercises: Exercise[];
+export interface PlannedExercise {
+    name: string;
+    unit: string;
+    type: string;
+    tracking: string;
+    plannedSets: number;
+    plannedReps: number;
 }
-  
+
+interface WorkoutData {
+    workoutStarted?: Date;
+    workoutEnded?: Date;
+    postWorkoutNote?: string;
+    exercises?: Exercise[];
+}
+
+export interface PlannedWorkout {
+    description: string;
+    exercises: PlannedExercise[];
+}
+
+export interface PlannedActivityRecord {
+    type: string;
+    title: string;
+    data: PlannedWorkout;
+    date: Date;
+}
+
 export interface ActivityRecord {
     id: number;
     type: string;
     title: string;
-    data: Workout;
+    data?: WorkoutData;
+    plannedData?: PlannedWorkout;
     date: Date;
 }
 
-export default function useActivities(begin: Date, end: Date) {
-    const user = useUser();
+export default function useActivities(begin?: Date, end?: Date) {
+    const { user } = useAuth();
+    const queryClient = useQueryClient();
 
     useEffect(() => {
         refetch();
@@ -45,7 +69,39 @@ export default function useActivities(begin: Date, end: Date) {
         refetchOnWindowFocus: true,
     });
 
-    return activities;
+    const saveActivity = async (activity: PlannedActivityRecord) => {
+        if(!user) {
+            console.log("No user logged in - cannot save activity");
+            return false;
+        }
+
+        const { data, error } = await supabase
+            .from('SweatSync.Activities')
+            .insert([{ 
+                date: activity.date.toISOString(), 
+                title: activity.title,
+                user: user.id, 
+                type: activity.type,
+                plannedData: activity.data, 
+            }]);
+
+        if(error) {
+            console.log("Error adding activity: ", error);
+            return false;
+        }
+
+        //Need to invalidate query key for this month
+        queryClient.invalidateQueries(['activitiesList', { 
+            userId: user?.id, 
+            begin: getFirstDayOfMonth(activity.date), 
+            end: getLastDayOfMonth(activity.date) 
+        }]);
+
+        console.log("Added activity");
+        return true;
+    }
+
+    return {activities, saveActivity};
 }
 
 const fetchActivities: QueryFunction<ActivityRecord[], ["activitiesList", {
@@ -58,7 +114,6 @@ const fetchActivities: QueryFunction<ActivityRecord[], ["activitiesList", {
         let end = queryKey[1].end;
 
         if(!userId) {
-            console.log("User is null - waiting to fetch activities.")
             return [] as ActivityRecord[];
         }
 
@@ -73,7 +128,7 @@ const fetchActivities: QueryFunction<ActivityRecord[], ["activitiesList", {
 
         const { data, error } = await supabase
             .from('SweatSync.Activities')
-            .select('id, date, title, type, data')
+            .select('id, date, title, type, data, plannedData')
             .eq('user', userId)
             .gte('date', begin.toISOString())
             .lte('date', end.toISOString())
@@ -84,43 +139,75 @@ const fetchActivities: QueryFunction<ActivityRecord[], ["activitiesList", {
             return [] as ActivityRecord[];
         }
         
-        console.log("Activity Data: ", data);
-        
         const activityRecords: ActivityRecord[] = data.map((row) => {
-            const workout: Workout = {
-                workoutStarted: new Date(row.data.workoutStarted),
-                workoutEnded: new Date(row.data.workoutEnded),
-                postWorkoutNote: row.data.postWorkoutNote,
-                exercises: row.data.exercises.map(exercise => {
-                    const { name, noteForNextTime, unit, type, sets } = exercise;
-                    return {
-                        name,
-                        noteForNextTime,
-                        unit,
-                        type,
-                        sets: sets.map(set => {
-                            const { id, reps, value } = set;
-                            return {
-                                id,
-                                reps,
-                                value
-                        };
-                    })
-                  };
-                })
+            const workoutData: WorkoutData = {
+                workoutStarted: row.data?.workoutStarted ? new Date(row.data?.workoutStarted) : undefined,
+                workoutEnded: row.data?.workoutEnded ? new Date(row.data?.workoutEnded) : undefined,
+                postWorkoutNote: row.data?.postWorkoutNote ?? "",
+                exercises: parseExercises(row)
               };
+
+            const plannedData: PlannedWorkout = {
+                description: row.plannedData?.description ?? "",
+                exercises: parsePlannedExercises(row)
+            };
 
             const activityRecord: ActivityRecord = {
                 id: row.id,
                 type: row.type,
                 title: row.title,
-                data: workout,
+                data: workoutData,
+                plannedData: plannedData,
                 date: new Date(row.date)
             }
 
             return activityRecord;
         });
 
-        console.log("Activity Records: ", activityRecords);
+        //console.log("Activity Records: ", activityRecords);
         return activityRecords;
     }
+
+function parsePlannedExercises(row: 
+    { id: any; date: any; title: any; type: any; data: any; plannedData: any; }): PlannedExercise[] {
+    
+    if(!row.plannedData) {
+        return [];
+    }
+
+    return row.plannedData.exercises.map(exercise => {
+        const { name, unit, type, tracking, plannedSets, plannedReps } = exercise;
+        return {
+            name,
+            unit,
+            type,
+            tracking,
+            plannedSets,
+            plannedReps
+        };
+    });
+}
+
+function parseExercises(row: { id: any; date: any; title: any; type: any; data: any; plannedData: any; }): Exercise[] {
+    if(!row.data) {
+        return [];
+    }
+
+    return row.data.exercises.map(exercise => {
+        const { name, noteForNextTime, unit, type, sets } = exercise;
+        return {
+            name,
+            noteForNextTime,
+            unit,
+            type,
+            sets: sets.map(set => {
+                const { id, reps, value } = set;
+                return {
+                    id,
+                    reps,
+                    value
+                };
+            })
+        };
+    });
+}
