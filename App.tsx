@@ -19,6 +19,7 @@ import AppleHealthKit, {
 import AddWorkoutScreen from './screens/AddWorkoutScreen';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import ActivitySummaryScreen from './screens/ActivitySummaryScreen';
+import RecordWorkoutScreen from './screens/RecordWorkoutScreen';
 
 const queryClient = new QueryClient();
 const Tab = createBottomTabNavigator();
@@ -84,6 +85,7 @@ export default function App() {
                   <Stack.Screen name="Home" component={BottomBarNavigation} />
                   <Stack.Screen name="AddWorkout" component={AddWorkoutScreen} options={{headerShown: true}}/>
                   <Stack.Screen name="ActivitySummary" component={ActivitySummaryScreen} options={{headerShown: true}}/>
+                  <Stack.Screen name="RecordWorkout" component={RecordWorkoutScreen} options={{headerShown: true}}/>
                 </Stack.Navigator>
               </NavigationContainer>
           </PaperProvider>

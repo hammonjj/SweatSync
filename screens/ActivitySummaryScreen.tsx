@@ -14,7 +14,7 @@ export default function ActivitySummaryScreen({ route,  navigation }) {
               size={25}
               onPress={() => {
                 console.log("Record workout Pressed")
-                //navigation.navigate("RecordWorkout", {});
+                navigation.navigate("RecordWorkout", {activityRecord: route.params.activityRecord});
               }} />
           ),
         });

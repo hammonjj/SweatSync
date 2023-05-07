@@ -74,7 +74,7 @@ export default function useActivities(begin?: Date, end?: Date) {
             console.log("No user logged in - cannot save activity");
             return false;
         }
-
+        console.log("Saving activity: ", activity);
         const { data, error } = await supabase
             .from('SweatSync.Activities')
             .insert([{ 

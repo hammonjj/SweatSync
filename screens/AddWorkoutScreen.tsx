@@ -45,7 +45,7 @@ export default function AddWorkoutScreen({ route,  navigation }) {
               }} /> //Add new activity
           ),
         });
-      }, [navigation]);
+      }, [navigation, selectedStrengthExercises, workoutTitle, workoutDate, workoutDuration, workoutDescription, workoutType]);
 
     async function saveCurrentActivity() {
         const plannedExercises: PlannedExercise[] = selectedStrengthExercises.map((exercise) => {
@@ -63,7 +63,6 @@ export default function AddWorkoutScreen({ route,  navigation }) {
             description: workoutDescription,
             exercises: plannedExercises
         }
-
         let plannedActivity: PlannedActivityRecord = {
             title: workoutTitle,
             date: workoutDate,
