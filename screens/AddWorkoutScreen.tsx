@@ -20,7 +20,6 @@ export interface SelectedStengthExercise {
 export default function AddWorkoutScreen({ route,  navigation }) {
     const {saveActivity} = useActivities();
     const [workoutTitle, setWorkoutTitle] = useState("");
-    console.log("AddWorkoutScreen Params: " + route.params.selectedDate);
     const [workoutDate, setWorkoutDate] = useState<Date>(route.params.selectedDate);
     const [workoutDuration, setWorkoutDuration] = useState(0);
     const [workoutDescription, setWorkoutDescription] = useState("");

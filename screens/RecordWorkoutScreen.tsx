@@ -47,7 +47,6 @@ export default function RecordWorkoutScreen({ route, navigation }) {
             });
         });
 
-        //updatedActivityRecord.data.workoutStarted = new Date();
         setRecordedActivityRecord(updatedActivityRecord);
     }, []);
 

@@ -9,13 +9,25 @@ export default function ActivitySummaryScreen({ route,  navigation }) {
     useEffect(() => {
         navigation.setOptions({
           headerRight: () => (
-            <IconButton
-              icon="record-circle-outline"
-              size={25}
-              onPress={() => {
-                console.log("Record workout Pressed")
-                navigation.navigate("RecordWorkout", {activityRecord: route.params.activityRecord});
-              }} />
+            <View style={{ flexDirection: 'row' }}>
+                    <IconButton
+                        icon="record-circle-outline"
+                        size={25}
+                        onPress={() => {
+                            console.log("Record workout Pressed");
+                            navigation.navigate("RecordWorkout", { activityRecord: route.params.activityRecord });
+                        }} 
+                    />
+                    <IconButton
+                        icon="dots-vertical" // Replace this with the actual icon name
+                        size={25}
+                        onPress={() => {
+                            console.log("Second button Pressed");
+                            //Create menu with options to edit or delete activity
+                            
+                        }} 
+                    />
+                </View>
           ),
         });
       }, [navigation]);
