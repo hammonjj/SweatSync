@@ -49,42 +49,47 @@ const Stopwatch: React.FC = () => {
     const seconds = Math.floor((timer - minutes * 6000) / 100);
     const milliseconds = timer % 100;
 
-    return `${minutes.toString().padStart(2, '0')}:${seconds
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${Math.floor(milliseconds / 10)
       .toString()
-      .padStart(2, '0')}.${milliseconds.toString().padStart(2, '0')}`;
+      .padStart(2, '0')}`;
   };
 
   return (
-    <>
+    <View style={styles.horizontalContainer}>
       <TouchableOpacity onPress={handleStopwatchEvent}>
-        <View style={styles.container} >
+        <View style={styles.container}>
           <Text style={styles.timeText}>{formatTime(timer)}</Text>
         </View>
       </TouchableOpacity>
       <View style={styles.buttons}>
-      <TouchableOpacity onPress={handleClearTimer} style={styles.stopButton}>
-        <Text style={styles.buttonText}>Clear</Text>
-      </TouchableOpacity>
-      </View>   
-  </> 
+        <TouchableOpacity onPress={handleClearTimer} style={styles.stopButton}>
+          <Text style={styles.buttonText}>Clear</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  horizontalContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 50,
+  },
   container: {
     alignItems: 'center',
-
+  },
+  timeText: {
+    fontSize: 30,
+    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
+    width: 150, // Change width to a larger value
+    marginRight: 20,
   },
   timer: {
     //flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
-  },
-  timeText: {
-    fontSize: 40,
-    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
-    width: 30,
-    //textAlign: 'center',
   },
   buttons: {
     flexDirection: 'row',

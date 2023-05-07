@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
-import { ActivityRecord } from "../hooks/useActivities";
+import useActivities, { ActivityRecord, ExerciseSet } from "../hooks/useActivities";
 import { Surface, TextInput, Text, IconButton } from "react-native-paper";
 import Stopwatch from "../components/Stopwatch";
 
 export default function RecordWorkoutScreen({ route, navigation }) {
+    const {recordActivity} = useActivities();
     const [currentIndex, setCurrentIndex] = useState(null);
     const [activityRecord, setActivityRecord] = useState<ActivityRecord>(route.params.activityRecord);
     const [recordedActivityRecord, setRecordedActivityRecord] = useState<ActivityRecord>(null);
@@ -15,7 +16,38 @@ export default function RecordWorkoutScreen({ route, navigation }) {
             ...activityRecord
         };
 
-        updatedActivityRecord.data.workoutEnded = new Date();
+        if (!updatedActivityRecord.data) {
+            updatedActivityRecord.data = {
+              workoutStarted: new Date(),
+              workoutEnded: undefined,
+              postWorkoutNote: undefined,
+              exercises: [],
+            };
+        }
+
+        activityRecord.plannedData.exercises.forEach(element => {
+            const sets: ExerciseSet[] = Array.from({ length: element.plannedSets }, (_, index) => ({
+                id: index,
+                reps: 0,
+                value: 0,
+            }));
+
+            for (let index = 0; index < sets.length; index++) {
+                sets[index].id = index;
+                sets[index].reps = 0;
+                sets[index].value = element.tracking === "weight" ? 0 : "";
+            }
+            
+            updatedActivityRecord.data.exercises.push({
+                name: element.name,
+                unit: "imperial",
+                sets: sets,
+                type: "strength",
+                noteForNextTime: "",
+            });
+        });
+
+        //updatedActivityRecord.data.workoutStarted = new Date();
         setRecordedActivityRecord(updatedActivityRecord);
     }, []);
 
@@ -27,19 +59,25 @@ export default function RecordWorkoutScreen({ route, navigation }) {
               size={25}
               onPress={() => {
                 const updatedActivityRecord: ActivityRecord = {
-                    ...activityRecord
+                    ...recordedActivityRecord
                 };
 
                 updatedActivityRecord.data.workoutEnded = new Date();
-
-                console.info("Save Recorded Activity", updatedActivityRecord);
-                //Save Activity Data
+                recordActivity(updatedActivityRecord);
                 setRecordedActivityRecord(updatedActivityRecord);
+                navigation.navigate("Home");
               }} />
           ),
         });
-      }, [navigation, activityRecord]);
+      }, [navigation, recordedActivityRecord]);
 
+      if(!recordedActivityRecord) {
+        return (
+            <View>
+                <Text>Loading...</Text>
+            </View>
+        );
+      }
     return (
       <View style={styles.container}>
         {activityRecord.plannedData.exercises.map((exercise, index) => {
@@ -67,22 +105,49 @@ export default function RecordWorkoutScreen({ route, navigation }) {
                                     keyboardType="numeric"
                                     mode="outlined"
                                     label="Reps"
-                                    value={''}
-                                    onChangeText={(text) => {}}
+                                    value={recordedActivityRecord.data.exercises.find((e) => e.name === exercise.name).sets[i].reps.toString()}
+                                    onChangeText={(text) => {
+                                        const updatedRecord = { ...recordedActivityRecord };
+                                        const currentExercise = updatedRecord.data.exercises.find((e) => e.name === exercise.name);
+                                        currentExercise.sets[i].reps = parseInt(text);
+                                        setRecordedActivityRecord(updatedRecord);
+                                    }}
+                                    //disabled={(
+                                    //    i === 0 ? false : recordedActivityRecord.data.exercises.find((e) => e.name === exercise.name).sets[i-1].reps < 1
+                                    //)}
                                 />
                             </Surface>
                             <Surface style={styles.horizontalSurface}>
                                 <TextInput
-                                    style={{width: 100}}
+                                    style={{width: 85}}
                                     keyboardType="numeric"
                                     mode="outlined"
-                                    label="Weight"
-                                    value={''}
-                                    onChangeText={(text) => {}}
+                                    label={exercise.tracking === "weight" ? "Weight" : "Time"}
+                                    value={recordedActivityRecord.data.exercises.find((e) => e.name === exercise.name).sets[i].value.toString()}
+                                    onChangeText={(text) => {
+                                        const updatedRecord = { ...recordedActivityRecord };
+                                        const currentExercise = updatedRecord.data.exercises.find((e) => e.name === exercise.name);
+                                        currentExercise.sets[i].value = parseInt(text);
+                                        setRecordedActivityRecord(updatedRecord);
+                                    }}
                                 />
+                            </Surface>
+                            <Surface style={styles.horizontalSurface}>
+                                <Text variant="displaySmall">Prev.</Text>
                             </Surface>
                       </View>
                     ))}
+                    <TextInput
+                        mode="outlined"
+                        label="Lift Notes"
+                        value={recordedActivityRecord.data.exercises.find((e) => e.name === exercise.name).noteForNextTime}
+                        onChangeText={(text) => {
+                            const updatedRecord = { ...recordedActivityRecord };
+                            const currentExercise = updatedRecord.data.exercises.find((e) => e.name === exercise.name);
+                            currentExercise.noteForNextTime = text;
+                            setRecordedActivityRecord(updatedRecord);
+                        }}
+                    />
                   </View>
                 )}
               </View>
@@ -90,7 +155,18 @@ export default function RecordWorkoutScreen({ route, navigation }) {
             </TouchableOpacity>
           );
         })}
-        <Stopwatch />       
+        <TextInput
+            mode="outlined"
+            label="Post Workout Notes"
+            value={recordedActivityRecord.data.postWorkoutNote}
+            style={{marginBottom: 20}}
+            onChangeText={(text) => {
+                const updatedRecord = { ...recordedActivityRecord };
+                updatedRecord.data.postWorkoutNote = text;
+                setRecordedActivityRecord(updatedRecord);
+            }}
+        />
+        <Stopwatch />    
       </View>
     );
   }
@@ -114,12 +190,9 @@ const styles = StyleSheet.create({
     horizontalSurfacesContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        //width: '100%',
-        //marginBottom: 20,
-        padding: 5,
-
+        paddingTop: 3,
       },
       horizontalSurface: {
-        width: '30%',
+        width: '27%',
       }
 });

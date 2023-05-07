@@ -4,7 +4,7 @@ import { QueryFunction, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getFirstDayOfMonth, getLastDayOfMonth } from '../utils/DateUtils';
 import { useAuth } from './useAuth';
 
-interface ExerciseSet {
+export interface ExerciseSet {
     id: number;
     reps: number;
     value: number | string; // value can be a number or a string depending on the exercise type (time vs. weight)
@@ -82,7 +82,7 @@ export default function useActivities(begin?: Date, end?: Date) {
                 title: activity.title,
                 user: user.id, 
                 type: activity.type,
-                plannedData: activity.data, 
+                plannedData: activity.data
             }]);
 
         if(error) {
@@ -97,11 +97,46 @@ export default function useActivities(begin?: Date, end?: Date) {
             end: getLastDayOfMonth(activity.date) 
         }]);
 
+        refetch();
         console.log("Added activity");
         return true;
     }
 
-    return {activities, saveActivity};
+    const recordActivity = async (activity: ActivityRecord) => {
+        if(!user) {
+            console.log("No user logged in - cannot save activity");
+            return false;
+        }
+        console.log("Saving activity: ", activity);
+        const { data, error } = await supabase
+            .from('SweatSync.Activities')
+            .insert([{
+                date: activity.date.toISOString(),
+                title: activity.title,
+                user: user.id,
+                type: activity.type,
+                data: activity.data,
+                plannedData: activity.plannedData
+            }]);
+
+        if(error) {
+            console.log("Error adding activity: ", error);
+            return false;
+        }
+
+        //Need to invalidate query key for this month
+        queryClient.invalidateQueries(['activitiesList', {
+            userId: user?.id,
+            begin: getFirstDayOfMonth(activity.date),
+            end: getLastDayOfMonth(activity.date)
+        }]);
+
+        refetch();
+        console.log("Added activity");
+        return true;
+    }
+
+    return {activities, saveActivity, recordActivity};
 }
 
 const fetchActivities: QueryFunction<ActivityRecord[], ["activitiesList", {
