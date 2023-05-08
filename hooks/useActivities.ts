@@ -69,6 +69,27 @@ export default function useActivities(begin?: Date, end?: Date) {
         refetchOnWindowFocus: true,
     });
 
+    const deleteActivity = async (activity: ActivityRecord) => {
+        if(!user) {
+            console.log("No user logged in - cannot delete activity");
+            return false;
+        }
+        console.log("Deleting activity: ", activity);
+        const { data, error } = await supabase
+            .from('SweatSync.Activities')
+            .delete()
+            .eq('id', activity.id);
+
+        if(error) {
+            console.log("Error deleting activity: ", error);
+            return false;
+        }
+
+        //Invalidate query key for this month
+        console.log("Deleted activity");
+        return true;
+    }
+
     const saveActivity = async (activity: PlannedActivityRecord) => {
         if(!user) {
             console.log("No user logged in - cannot save activity");
@@ -136,7 +157,7 @@ export default function useActivities(begin?: Date, end?: Date) {
         return true;
     }
 
-    return {activities, saveActivity, recordActivity};
+    return {activities, saveActivity, recordActivity, deleteActivity};
 }
 
 const fetchActivities: QueryFunction<ActivityRecord[], ["activitiesList", {

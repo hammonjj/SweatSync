@@ -84,7 +84,7 @@ export default function App() {
                 <Stack.Navigator screenOptions={{headerShown: false}}>
                   <Stack.Screen name="Home" component={BottomBarNavigation} />
                   <Stack.Screen name="AddWorkout" component={AddWorkoutScreen} options={{headerShown: true}}/>
-                  <Stack.Screen name="ActivitySummary" component={ActivitySummaryScreen} options={{headerShown: true}}/>
+                  <Stack.Screen name="ActivitySummary" component={ActivitySummaryScreen} options={{headerShown: false}}/>
                   <Stack.Screen name="RecordWorkout" component={RecordWorkoutScreen} options={{headerShown: true}}/>
                 </Stack.Navigator>
               </NavigationContainer>
