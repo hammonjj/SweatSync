@@ -8,7 +8,7 @@ import { Menu } from 'react-native-paper';
 export default function ActivitySummaryScreen({ route,  navigation }) {
     const [activityRecord, setActivityRecord] = React.useState<ActivityRecord>(route.params.activityRecord);
     const [visible, setVisible] = React.useState(false);
-    const {deleteActivity} = useActivities();
+    const {deleteActivity, saveActivityTemplate} = useActivities();
     const openMenu = () => setVisible(true);
     const closeMenu = () => setVisible(false);
 
@@ -27,7 +27,10 @@ export default function ActivitySummaryScreen({ route,  navigation }) {
                     visible={visible}
                     onDismiss={closeMenu}
                     anchor={<Appbar.Action icon={"dots-vertical" }onPress={openMenu}/>}>
-                        <Menu.Item onPress={() => {}} title="Save as Template" />
+                        <Menu.Item onPress={() => {
+                            closeMenu();
+                            saveActivityTemplate(activityRecord);
+                        }} title="Save as Template" />
                         <Menu.Item onPress={() => {
                             deleteActivity(activityRecord);
                             navigation.navigate("Home");    

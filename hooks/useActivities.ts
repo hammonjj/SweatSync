@@ -157,7 +157,36 @@ export default function useActivities(begin?: Date, end?: Date) {
         return true;
     }
 
-    return {activities, saveActivity, recordActivity, deleteActivity};
+    const saveActivityTemplate = async (activity: ActivityRecord) => {
+        if(!user) {
+            console.log("No user logged in - cannot save activity");
+            return false;
+        }
+
+        if(!activity.plannedData) {
+            console.log("No planned data - cannot save activity template");
+            return false;
+        }
+        
+        console.log("Saving activity: ", activity);
+        const { data, error } = await supabase
+            .from('SweatSync.ActivityTemplates')
+            .insert([{
+                title: activity.title,
+                user: user.id,
+                type: activity.type,
+                plannedData: activity.plannedData
+            }]);
+
+        if(error) {
+            console.log("Error adding activity: ", error);
+            return false;
+        }
+        
+        return true;
+    }
+
+    return {activities, saveActivity, recordActivity, deleteActivity, saveActivityTemplate};
 }
 
 const fetchActivities: QueryFunction<ActivityRecord[], ["activitiesList", {
