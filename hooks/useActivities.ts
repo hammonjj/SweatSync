@@ -103,7 +103,7 @@ export default function useActivities(begin?: Date, end?: Date) {
                 title: activity.title,
                 user: user.id, 
                 type: activity.type,
-                plannedData: activity.data
+                plannedData: JSON.stringify(activity.data)
             }]);
 
         if(error) {
@@ -136,8 +136,8 @@ export default function useActivities(begin?: Date, end?: Date) {
                 title: activity.title,
                 user: user.id,
                 type: activity.type,
-                data: activity.data,
-                plannedData: activity.plannedData
+                data: JSON.stringify(activity.data),
+                plannedData: JSON.stringify(activity.plannedData)
             }]);
 
         if(error) {
@@ -175,7 +175,7 @@ export default function useActivities(begin?: Date, end?: Date) {
                 title: activity.title,
                 user: user.id,
                 type: activity.type,
-                plannedData: activity.plannedData
+                plannedData: JSON.stringify(activity.plannedData)
             }]);
 
         if(error) {
