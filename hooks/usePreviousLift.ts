@@ -14,6 +14,7 @@ export interface LiftRecord {
     name: string;
     lift: Lift[];
 }
+
 export default function usePreviousLift() {
     const { user } = useAuth();
     const queryClient = useQueryClient();
@@ -33,9 +34,16 @@ export default function usePreviousLift() {
             throw error;
         }
 
+        if (data.length === 0) {
+            throw new Error('No data found');
+        }
+
+        const responseData = data[0];
         const record: LiftRecord = {
-            ...data,
-            lift: JSON.parse(data.data)
+            lift: JSON.parse(responseData.data),
+            id: responseData.id,
+            date: new Date(responseData.date),
+            name: responseData.name
         };
         
         return record;
