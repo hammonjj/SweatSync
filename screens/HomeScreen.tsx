@@ -25,8 +25,6 @@ export default function HomeScreen({ route, navigation }) {
   const [snackbarMessage, setSnackbarMessage] = React.useState("");
 
   const currentDay = useCalendar(monthStartDate, monthEndDate);
-  
-  const [actionSheetVisible, setActionSheetVisible] = React.useState(false);
 
   useEffect(() => {
     navigation.setOptions({
@@ -35,7 +33,7 @@ export default function HomeScreen({ route, navigation }) {
           icon="plus"
           size={25}
           onPress={() => {
-            navigation.navigate("AddWorkout", {selectedDate: selectedDate});
+            showAddActionSheet();
           }} />
       ),
     });
@@ -97,7 +95,7 @@ export default function HomeScreen({ route, navigation }) {
     function showAddActionSheet() {
       ActionSheetIOS.showActionSheetWithOptions(
         {
-          options: ['Cancel', 'Add Activity', 'Add Metrics', 'Record Workout'],
+          options: ['Cancel', 'Add Activity', 'Add Metrics', 'Add Activity from Template'],
           //destructiveButtonIndex: 0,
           cancelButtonIndex: 0,
           userInterfaceStyle: 'dark',
@@ -107,11 +105,11 @@ export default function HomeScreen({ route, navigation }) {
             console.log('Cancel');
           } else if (buttonIndex === 1) {
             console.log('Add Activity');
-            setActionSheetVisible(true);
+            navigation.navigate("AddWorkout", {selectedDate: selectedDate});
           } else if (buttonIndex === 2) {
             console.log('Add Metrics');
           } else if (buttonIndex === 3) {
-          console.log('Record Workout');
+            console.log('Add Activity from Template');
           }
         },
       );

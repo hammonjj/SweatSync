@@ -3,6 +3,7 @@ import { supabase } from '../utils/initSupabase'
 import { QueryFunction, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getFirstDayOfMonth, getLastDayOfMonth } from '../utils/DateUtils';
 import { useAuth } from './useAuth';
+import usePreviousLift from './usePreviousLift';
 
 export interface ExerciseSet {
     id: number;
@@ -57,6 +58,7 @@ export interface ActivityRecord {
 
 export default function useActivities(begin?: Date, end?: Date) {
     const { user } = useAuth();
+    const { recordLift } = usePreviousLift();
     const queryClient = useQueryClient();
 
     useEffect(() => {
@@ -128,7 +130,7 @@ export default function useActivities(begin?: Date, end?: Date) {
             console.log("No user logged in - cannot save activity");
             return false;
         }
-        console.log("Saving activity: ", activity);
+        console.log("Recording activity: ", activity);
         const { data, error } = await supabase
             .from('SweatSync.Activities')
             .insert([{
@@ -168,7 +170,7 @@ export default function useActivities(begin?: Date, end?: Date) {
             return false;
         }
         
-        console.log("Saving activity: ", activity);
+        console.log("Saving activity template: ", activity);
         const { data, error } = await supabase
             .from('SweatSync.ActivityTemplates')
             .insert([{

@@ -70,13 +70,14 @@ export default function RecordWorkoutScreen({ route, navigation }) {
         });
       }, [navigation, recordedActivityRecord]);
 
-      if(!recordedActivityRecord) {
-        return (
-            <View>
-                <Text>Loading...</Text>
-            </View>
-        );
-      }
+    if(!recordedActivityRecord) {
+      return (
+          <View>
+              <Text>Loading...</Text>
+          </View>
+      );
+    }
+
     return (
       <View style={styles.container}>
         {activityRecord.plannedData.exercises.map((exercise, index) => {
